@@ -4,40 +4,13 @@ import java.util.Properties
 import java.util.concurrent.CountDownLatch
 
 import grizzled.slf4j.Logging
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, ConsumerRecords, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.common.errors.WakeupException
 import org.apache.kafka.common.serialization.StringDeserializer
 
 import scala.jdk.CollectionConverters._
 
 class ConsumerWithThreads(topic: String) extends Logging {
-  /** create properties */
-  val props = new Properties()
-  props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092")
-  // all data inside kafka is bytes; kafka sends bytes to consumer; need to tell consumer client how to deserialize it
-  // i.e. consumer needs to take bytes and create a string from it
-  props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
-  props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
-  props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "my-forth-application5") // if start one consumer instance in group, then start another in sae group, a rebalance would occur
-  /* what to do when there is no initial offset in kafka of if the current offset does not exist anymore (e.g. because data has been deleted)
-    - earliest:
-      - automatically reset the offset to the earliest offset
-      - you want to read from the very beginning of your topic
-      - earliest is equivalent to the from-beginning option in the CLI
-    - latest:
-      - automatically reset the offset to the latest offset
-      - you read from only the new messages onwards
-    - none:
-      - throw exception to the consumer if no previous offset found for the consumer's group
-      - will throw an error if there are no offsets saved
-   */
-  props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest") // earliest, latest, none
-
-  /** create consumer **/
-  val consumer: KafkaConsumer[String,String] = new KafkaConsumer[String,String](props)
-
-  /** subscribe to topic(s) **/
-  consumer.subscribe(util.Arrays.asList(topic)) // could subscribe to multiple topics
 
   /** poll for new data **/
   def consumeNew(): Unit = {
@@ -48,7 +21,9 @@ class ConsumerWithThreads(topic: String) extends Logging {
     // start the thread
     val thread = new Thread(runnable)
     thread.start()
-    // add shutdown hook
+
+    // add shutdown hook; this properly shuts down application
+    // i.e. this is the thing that runs when you stop the application
     Runtime.getRuntime.addShutdownHook(new Thread(() => {
       logger.info("Caught shutdown hook")
       runnable.shutdown()
@@ -60,11 +35,13 @@ class ConsumerWithThreads(topic: String) extends Logging {
       logger.info("application has exited")
     }))
 
+    //don't want to our application to exit right away, so we do await
+    // this basically makes wait until application is over
     try {
       latch.await()
     } catch {
       case e: InterruptedException => {
-        logger.error("error")
+        logger.error("application got interrupted", e)
         e.printStackTrace()
       }
     } finally {
@@ -75,6 +52,16 @@ class ConsumerWithThreads(topic: String) extends Logging {
 
   // latch is something to deal with concurrency; it is going to be able to shut down our application correctly
   class ConsumerRunnable(latch: CountDownLatch) extends Runnable {
+
+    val props = new Properties()
+    props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092")
+    props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+    props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+    props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "my-forth-application5") // if start one consumer instance in group, then start another in sae group, a rebalance would occur
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest") // earliest, latest, none
+
+    val consumer: KafkaConsumer[String,String] = new KafkaConsumer[String,String](props)
+    consumer.subscribe(util.Arrays.asList(topic))
 
     override def run(): Unit = {
       try {

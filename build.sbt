@@ -9,4 +9,6 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" % "kafka-clients" % Version.KafkaClients,
   "org.clapper" %% "grizzled-slf4j" % Version.GrizSLF4J,
   "ch.qos.logback" % "logback-classic" % Version.LogbackClassic,
+  "com.github.scopt" %% "scopt" % Version.Scopt,
+  "com.twitter" % "hbc-core" % "2.2.0"
 )

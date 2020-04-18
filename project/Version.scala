@@ -3,4 +3,5 @@ object Version {
   val KafkaClients = "2.4.1"
   val GrizSLF4J = "1.3.4"
   val LogbackClassic = "1.2.3"
+  val Scopt = "3.7.1"
 }
