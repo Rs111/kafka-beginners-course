@@ -39,6 +39,18 @@ package object twitter {
     props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName)
 
+    // safety properties
+    props.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true")
+    // all the below would be set automatically by idempotent config above; setting manually for visibility
+    props.setProperty(ProducerConfig.ACKS_CONFIG, "all")
+    props.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE.toString)
+    props.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5")
+
+    // high-throughput (at expense of a bit of latency and CPU usage)
+    props.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy")
+    props.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20")
+    props.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, (32 * 1024).toString) // 32 KB batch size
+
     new KafkaProducer[String, String](props)
   }
 }

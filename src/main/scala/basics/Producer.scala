@@ -1,3 +1,5 @@
+package basics
+
 import java.util.Properties
 
 import org.apache.kafka.clients.producer._
@@ -19,11 +21,11 @@ class Producer(topic: String) {
 
   def writeToKafka(message: (String, String)): Unit = {
     /* 1
-      Create Producer Properties
+      Create basics.Producer Properties
       - to create producer properties: java.util.Properties
       - what properties do we put in?
       - go to kafka docs: https://kafka.apache.org/documentation/
-      - 3.3 Producer Configs
+      - 3.3 basics.Producer Configs
       - serializers help producer know what kind of value you are sending to kafka and how this should be serialized to bytes
       - kafka client will convert whatever we send to kafka to bytes (0s and 1s)
       - for our case, we are going to send strings

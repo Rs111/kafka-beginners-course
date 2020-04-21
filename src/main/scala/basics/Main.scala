@@ -1,3 +1,5 @@
+package basics
+
 object Main extends App {
 
   val producer = new ProducerWithCallbackAndKeys("first_topic")

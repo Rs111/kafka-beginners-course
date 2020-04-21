@@ -1,10 +1,12 @@
+package basics
+
 import java.time.Duration
 import java.util
 import java.util.Properties
 import java.util.concurrent.CountDownLatch
 
 import grizzled.slf4j.Logging
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, ConsumerRecords, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.errors.WakeupException
 import org.apache.kafka.common.serialization.StringDeserializer

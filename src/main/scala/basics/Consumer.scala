@@ -1,9 +1,11 @@
+package basics
+
 import java.time.Duration
 import java.util
 import java.util.Properties
 
 import grizzled.slf4j.Logging
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, ConsumerRecords, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.common.serialization.StringDeserializer
 
 import scala.jdk.CollectionConverters._
