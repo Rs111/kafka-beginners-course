@@ -36,6 +36,7 @@ package object elasticsearch {
     props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest") // earliest, latest, none
     props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
     props.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10")
+    //props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
 
     val consumer: KafkaConsumer[String,String] = new KafkaConsumer[String,String](props)
     consumer.subscribe(util.Arrays.asList(topic))
